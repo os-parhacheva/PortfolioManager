@@ -1,0 +1,169 @@
+﻿@page "/competition/{id}"
+@using PortfolioManager.Domain
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+<h1>Конкурс @comp.Name</h1>
+
+<div class="border" style="height: auto; background-position: center; border-radius: 6px; margin-bottom: 10px;">
+    <div style="margin:25px;">
+        <h4>Основная информация о конкурсе</h4>
+        <div style="overflow: hidden;">
+            <div style="padding-top:12px;">
+                <div style=" margin-right: 70px; float: left; width:70%">
+                    <div style="align-items: stretch; display: flex; flex-wrap: wrap;">
+                        <div style="flex-basis: 156px; display: flex; margin-right: 40px; ">
+                            <p style="color: #5f6368;">Название:</p>
+                        </div>
+                        <div>
+                            <p>@comp.Name</p>
+                        </div>
+                    </div>
+                    <hr style="border: none; background-color: gray; height: 1px; margin-bottom:16px; margin-top:0"/>
+                    <div style="align-items: stretch; display: flex; flex-wrap: wrap;">
+                        <div style="flex-basis: 156px; display: flex; margin-right: 40px; ">
+                            <p style="color: #5f6368;">Организатор:</p>
+                        </div>
+                        <div>
+                            <p>@comp.Organizer</p>
+                        </div>
+                    </div>
+                     <hr style="border: none; background-color: gray; height: 1px; margin-bottom:16px; margin-top:0"/>
+                    <div style="align-items: stretch; display: flex; flex-wrap: wrap;">
+                        <div style="flex-basis: 156px; display: flex; margin-right: 40px; ">
+                            <p style="color: #5f6368;">Тип конкурса:</p>
+                        </div>
+                        <div>
+                            <p>@comp.Type</p>
+                        </div>
+                    </div>
+                     <hr style="border: none; background-color: gray; height: 1px; margin-bottom:16px; margin-top:0"/>
+                    <div style="align-items: stretch; display: flex; flex-wrap: wrap;">
+                        <div style="flex-basis: 156px; display: flex; margin-right: 40px; ">
+                            <p style="color: #5f6368;">Вид участия:</p>
+                        </div>
+                        <div>
+                            <p>@comp.View</p>
+                        </div>
+                    </div>
+                     <hr style="border: none; background-color: gray; height: 1px; margin-bottom:16px; margin-top:0"/>
+                    <div style="align-items: stretch; display: flex; flex-wrap: wrap;">
+                        <div style="flex-basis: 156px; display: flex; margin-right: 40px; ">
+                            <p style="color: #5f6368;">Год проведения:</p>
+                        </div>
+                        <div>
+                            <p>@comp.Date.ToString("yyyy")</p>
+                        </div>
+                    </div>
+                     <hr style="border: none; background-color: gray; height: 1px; margin-bottom:16px; margin-top:0"/>
+                    <div style="align-items: stretch; display: flex; flex-wrap: wrap;">
+                        <div style="flex-basis: 156px; display: flex; margin-right: 40px; ">
+                            <p style="color: #5f6368;">Ссылка на конкурс:</p>
+                        </div>
+                        <div>
+                            <p>@comp.URL</p>
+                        </div>
+                    </div>
+                     <hr style="border: none; background-color: gray; height: 1px; margin-bottom:16px; margin-top:0"/>
+                    <div style="align-items: stretch; display: flex; flex-wrap: wrap;">
+                        <div style="flex-basis: 156px; display: flex; margin-right: 40px; ">
+                            <p style="color: #5f6368;">Результат:</p>
+                        </div>
+                        <div>
+                            <p>@comp.Result</p>
+                        </div>
+                    </div>
+                </div>
+                <div style="float: left; width: 250">
+                    <div style="justify-content:center; align-items: center; display: flex;">
+                        <p>Сертификат</p>
+                    </div>
+                    @if(comp.Certificate=="")
+                    {
+                        <p>Сертификат не прикреплен</p>
+                    }
+                    <img src="@comp.Certificate" width="200">
+                </div>
+            </div>
+        </div>
+    </div> 
+</div>    
+
+
+<div class="border" style="height: auto; background-position: center; border-radius: 6px; margin-bottom: 10px;">
+    <div style="margin:25px;">
+        <h4>Этапы</h4>
+        <div style="padding-top:12px">
+            @if (comp.Stages != null && comp.Stages.Count > 0)
+                    {
+                        @foreach (var stage in comp.Stages)
+                        {
+                            <p>Этап @stage.Number</p>
+                            <hr style="border: none; background-color: gray; height: 1px; margin-bottom:16px; margin-top:0"/>
+                            <div style="align-items: stretch; display: flex; flex-wrap: wrap;">
+                                <div style="flex-basis: 156px; display: flex; margin-right: 40px; ">
+                                    <p style="color: #5f6368;">Дата проведения:</p>
+                                </div>
+                                <div>
+                                    <p>@stage.Deadline.ToString("dd/MM/yyyy")</p>
+                                </div>
+                            </div>
+                            <hr style="border: none; background-color: gray; height: 1px; margin-bottom:16px; margin-top:0"/>
+                            <div style="align-items: stretch; display: flex; flex-wrap: wrap;">
+                                <div style="flex-basis: 156px; display: flex; margin-right: 40px; ">
+                                    <p style="color: #5f6368;">Фонд:</p>
+                                </div>
+                                <div>
+                                    <p>@stage.Fund ₽</p>
+                                </div>
+                            </div>
+                            <hr style="border: none; background-color: gray; height: 1px; margin-bottom:16px; margin-top:0"/>
+                            <div style="align-items: stretch; display: flex; flex-wrap: wrap;">
+                                <div style="flex-basis: 156px; display: flex; margin-right: 40px; ">
+                                     <p style="color: #5f6368;">Результат:</p>
+                                </div>
+                                <div>
+                                    <p>@stage.Result</p>
+                                </div>
+                            </div>
+                            <hr style="border: none; background-color: gray; height: 1px; margin-bottom:16px; margin-top:0"/>
+
+                            <div style="margin-bottom: 25px">
+                                @if (stage.Participants != null && stage.Participants.Count > 0)
+                                {
+                                    <div style="align-items: stretch; display: flex; flex-wrap: wrap;">
+                                        <div style="flex-basis: 156px; box-align: center; align-items: start; display: flex; margin-right: 40px; ">
+                                            <p style="color: #5f6368;">Участники: </p>
+                                        </div>
+                                        <div>
+                                            @foreach (var part in stage.Participants)
+                                            {
+                                                <p>@part.Surname @part.Name @part.Middlename (@part.Role) </p>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                { <a>Участники отсутствуют</a>}    
+                            </div>
+                        }
+                    }
+                    else
+                    { <a>Этапы отсутствуют</a>}
+                    
+        </div>
+    </div>
+</div>
+    
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+    public Competition comp { get; set; } = new Competition();
+
+    protected async override Task OnInitializedAsync()
+    {
+
+        comp = await Http.GetFromJsonAsync<Competition>($"https://localhost:5001/api/Com/{Id}");
+
+    }
+}

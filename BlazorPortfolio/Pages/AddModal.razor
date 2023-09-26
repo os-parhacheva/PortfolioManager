@@ -1,0 +1,61 @@
+﻿@using PortfolioManager.Domain
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+<div class="modal fade show" id="myModal" style="display: block; background-color: rgba(10, 10, 10,.8);" aria-modal="true" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Добавить конкурс</h4>
+                <button type="button" class="btn btn-outline-danger" @onclick="@ModalCancel">✖</button>
+            </div>
+            <div class="modal-body">
+                <EditForm class="form-signin" OnSubmit="AddCom" Model="_comp">
+                    <div class="align-content-center">
+                        <label for="name">Название</label>
+                    </div>
+                    <InputText id="name" type="text" @bind-Value="_comp.Name" class="form-control"/>
+                    <div class="align-content-center">
+                        <label for="name">Тип конкурса</label>
+                    </div>
+                    <InputText id="name" type="text" @bind-Value="_comp.Type" class="form-control"/>
+                    <div class="align-content-center">
+                        <label for="name">Результат</label>
+                    </div>
+                    <InputSelect id="result" @bind-Value="_comp.Result" class="form-control">
+                        <option>Победитель</option>
+                        <option>Призер</option>
+                        <option>Участник</option>
+                    </InputSelect>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Добавить</button>
+                    </div>
+                    
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code{
+    [Parameter]
+    public Competition Competition { get; set; } = new Competition();
+
+    Competition _comp = new Competition();
+    [Parameter]
+    public EventCallback<bool> OnClose { get; set; }
+    private Task ModalCancel()
+    {
+        return OnClose.InvokeAsync(false);
+    }
+
+    private async Task AddCom()
+    {
+        var respone = await Http.PostAsJsonAsync("https://localhost:5001/api/Com", _comp);
+        if (respone.IsSuccessStatusCode)
+        {
+
+            _comp = new Competition();
+            NavigationManager.NavigateTo("/", true);
+        }
+    }
+}

@@ -1,0 +1,102 @@
+﻿ @page "/editpt/{id}/{stid}"
+@using PortfolioManager.Domain
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+
+<div style=" display:flex; align-items: center; justify-content: center;">
+    
+    <EditForm class="form-signin" OnSubmit="HandleValidSubmit" Model="comp" style="width:650px">
+        <a href="@($"editst/{comp.Id}")" class="btn btn-outline-primary">Назад</a>
+         <div class="modal-body">
+            @foreach(var st in comp.Stages)
+            {
+                if(st.Id.ToString() == Stid)
+                {
+                    @if (st.Participants.Count != 0)
+                    {
+
+                        @foreach (var pt in st.Participants)
+                        {
+                            <div style="margin-top: 24px;">
+                                <div style="align-items:stretch; display: flex; flex-wrap: wrap; justify-content:space-between"> 
+                                    <div style="margin-right: 50px;">
+                                        <h5>Участник </h5>
+                                    </div>
+                                    <div>
+                                        <button type="button" class="btn btn-outline-danger btn-sm"
+                                             @onclick="@(() => st.Participants.Remove(pt))">
+                                            ✖
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Имя</label>
+                                    <InputText class="form-control" @bind-Value="@pt.Name" />
+                                </div>
+                                <div class="form-group">
+                                    <label>Фамилия</label>
+                                    <InputText class="form-control" @bind-Value="@pt.Surname" />
+                                </div>
+                                <div class="form-group">
+                                    <label>Отчеcтво</label>
+                                    <InputText class="form-control" @bind-Value="@pt.Middlename" />
+                                </div>
+                                <div class="form-group">
+                                    <label>Роль</label>
+                                    <InputText class="form-control" @bind-Value="@pt.Role" />
+                                </div>
+                            </div>
+                        }
+                        
+                    }
+                    else
+                    {
+                        <p>Участники отсутствуют</p>
+                    }
+                    <div style="margin-top: 24px;">
+                            <button type="button" class="btn btn-outline-secondary btn-sm"
+                                        @onclick="@(() =>st.Participants.Add(new Participant()))">
+                                        Добавить участника
+                            </button>
+                    </div>
+                }
+            }
+             
+        </div>
+        @if(flag==true)
+        {
+            <div class="alert alert-success" role="alert" style="tim">
+                Изменения сохранены!
+            </div>
+        }
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+        </div>
+    </EditForm>
+</div>
+@code {
+    [Parameter]
+    public string Id { get; set; }
+    [Parameter]
+    public string Stid { get; set; }
+    public Competition comp { get; set; } = new Competition();
+    public bool flag = false;
+    protected async override Task OnInitializedAsync()
+    {
+
+        comp = await Http.GetFromJsonAsync<Competition>($"https://localhost:5001/api/Com/{Id}");
+
+    }
+    protected async Task HandleValidSubmit()
+    {
+        flag = false;
+        var res = await Http.PutAsJsonAsync($"https://localhost:5001/api/Com/{comp.Id}", comp);
+        if (res.IsSuccessStatusCode)
+        {
+            flag = true;
+        }
+    }
+}
+                   
+        

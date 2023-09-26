@@ -1,0 +1,102 @@
+﻿@page "/edit/{id}"
+@using PortfolioManager.Domain
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+
+    <h3 align="center">Редактирование информации о конкурсе @comp.Name</h3>
+
+
+<div style=" display:flex; align-items: center; justify-content: center;">
+
+    <EditForm class="form-signin" OnSubmit="HandleValidSubmit" Model="comp" style="width:650px">
+        <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="name">Название</label>
+                        <InputText id="name" type="text" @bind-Value="comp.Name" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="organizer">Организатор</label>
+                        <InputText id="organizer" type="text" @bind-Value="comp.Organizer" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="type">Тип конкурса</label>
+                        <InputText id="type" type="text" @bind-Value="comp.Type" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="class">Тип участия</label>
+                        <InputSelect id="class" @bind-Value="comp.View" class="form-control">
+                            <option value="">Выбрать...</option>
+                            <option>Очный</option>
+                            <option>Заочный</option>
+                            <option>Очно-заочный</option>
+                        </InputSelect>
+                    </div>
+                    <div class="mb-3">
+                       <label for="deadline">Дата проведения</label>
+                        <InputDate id="deadline"  @bind-Value="comp.Date" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="url">URL</label>
+                        <InputText id="url" type="text" @bind-Value="comp.URL" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="rez">Результат</label>
+                        <InputSelect id="result" @bind-Value="comp.Result" class="form-control">
+                            <option value="">Выбрать...</option>
+                            <option>Победитель</option>
+                            <option>Призер</option>
+                            <option>Участник</option>
+                        </InputSelect>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cert">Сертификат</label>
+                        <br/>
+                        <InputFile OnChange="OnFileChange"/>
+                    </div>
+                    </div>
+            @if(flag==true)
+            {
+                <div class="alert alert-success" role="alert" style="tim">
+                   Изменения сохранены!
+                </div>
+            }
+            <div class="modal-footer">
+                <a href="@($"editst/{comp.Id}")" class="btn btn-outline-primary">Этапы</a>
+                <button type="submit" class="btn btn-primary">Сохранить</button>
+            </div>
+    </EditForm>
+</div>
+@code {
+    [Parameter]
+    public string Id { get; set; }
+    public Competition comp { get; set; } = new Competition();
+    public bool flag = false;
+
+    protected async override Task OnInitializedAsync()
+    {
+
+        comp = await Http.GetFromJsonAsync<Competition>($"https://localhost:5001/api/Com/{Id}");
+
+    }
+    protected async Task HandleValidSubmit()
+    {
+        flag = false;
+        var res = await Http.PutAsJsonAsync($"https://localhost:5001/api/Com/{comp.Id}", comp);
+        if (res.IsSuccessStatusCode)
+        {
+            flag = true;
+        }
+
+    }
+    async Task OnFileChange(InputFileChangeEventArgs e)
+    {
+        var format="image/png";
+        var resizedImage = await e.File.RequestImageFileAsync(format,300,300);
+        var buffer = new byte[resizedImage.Size];
+        await resizedImage.OpenReadStream().ReadAsync(buffer);
+        var imageData = $"data:{format};base64,{Convert.ToBase64String(buffer)}";
+        comp.Certificate = imageData;
+    }
+    
+}

@@ -1,0 +1,83 @@
+﻿@using PortfolioManager.Domain
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+<div class="modal fade show" id="myModal" style="display: block; background-color: rgba(10, 10, 10,.8);" aria-modal="true" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Добавить этап</h4>
+                <button type="button" class="btn btn-outline-danger" @onclick="@ModalCancel">✖</button>
+            </div>
+            <div class="modal-body">
+                <EditForm class="form-signin" OnSubmit="AddStage" Model="_comp">
+                        <div class="mb-3">
+                            <label for="inputNumber" class="form-label">Номер</label>
+                            <InputSelect @bind-Value="st.Number" id="inputNumber" class="form-control">
+                                <option>1</option>
+                                <option>2</option>
+                                <option>3</option>
+                                <option>4</option>
+                            </InputSelect>
+                        </div>
+                        <div class="mb-3">
+                            <label for="inputDeadline" class="form-label">Дата проведения</label>
+                            <InputDate @bind-Value="st.Deadline"  class="form-control" id="inputDeadline"/>
+                        </div>
+                        <div class="mb-3">
+                            <label for="inpuFund" class="form-label">Фонд</label>
+                            <div class="input-group">
+                                <InputNumber @bind-Value="st.Fund" type="number" class="form-control" id="inputFund" />
+                                <div class="input-group-append">
+                                    <span class="input-group-text">₽</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="inputres" class="form-label">Резульат</label>
+                            <InputSelect id="class" @bind-Value="st.Result" class="form-control">
+                                <option value="">Выбрать...</option>
+                                <option>Победитель</option>
+                                <option>Призер</option>
+                                <option>Участник</option>
+                            </InputSelect>
+                        </div>
+                     <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Сохранить</button>
+            
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code{
+    [Parameter]
+    public Guid IdComp { get; set; }
+    public Stage st { get; set; } = new Stage();
+    Competition _comp = new Competition();
+    [Parameter]
+    public EventCallback<bool> OnClose { get; set; }
+    private Task ModalCancel()
+    {
+        return OnClose.InvokeAsync(false);
+    }
+
+    protected async override Task OnInitializedAsync()
+    {
+
+        _comp = await Http.GetFromJsonAsync<Competition>($"https://localhost:5001/api/Com/{IdComp}");
+
+    }
+
+    private async Task AddStage()
+    {
+        _comp.Stages.Add(st);
+        var respone = await Http.PutAsJsonAsync($"https://localhost:5001/api/Com/{_comp.Id}", _comp);
+        if (respone.IsSuccessStatusCode)
+        {
+            _comp = new Competition();
+            NavigationManager.NavigateTo($"/editst/{IdComp}", true);
+        }
+    }
+}

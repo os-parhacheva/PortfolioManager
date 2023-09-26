@@ -1,0 +1,120 @@
+﻿ @page "/editst/{id}"
+@using PortfolioManager.Domain
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+
+<div style=" display:flex; align-items: center; justify-content: center;">
+    <EditForm class="form-signin" OnSubmit="HandleValidSubmit" Model="comp" style="width:650px">
+        <a href="@($"edit/{comp.Id}")" class="btn btn-outline-primary">Назад</a>
+         <div class="modal-body">
+            @if (comp.Stages.Count == 0)
+            {
+                <p>Этапы отсутствуют</p>
+            }
+            @foreach (var st in comp.Stages)
+            {
+                <div style="margin-top:24px"> 
+                    <div style="align-items:stretch; display: flex; flex-wrap: wrap; justify-content:space-between"> 
+                        <div style="margin-right: 50px;">
+                            <h5>Этап</h5>
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-outline-danger btn-sm"
+                                @onclick="@(() => comp.Stages.Remove(st))">
+                                ✖
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="inputNumber" class="form-label">Номер</label>
+                        <InputSelect @bind-Value="st.Number" id="inputNumber" class="form-control">
+                            <option>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                            <option>4</option>
+                        </InputSelect>
+                    </div>
+                    <div class="mb-3">
+                        <label for="inputDeadline" class="form-label">Дата проведения</label>
+                        <InputDate @bind-Value="st.Deadline"  class="form-control" id="inputDeadline"/>
+                    </div>
+                    <div class="mb-3">
+                        <label for="inpuFund" class="form-label">Фонд</label>
+                        <div class="input-group">
+                            <InputNumber @bind-Value="st.Fund" type="number" class="form-control" id="inputFund" />
+                            <div class="input-group-append">
+                                <span class="input-group-text">₽</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="inputres" class="form-label">Резульат</label>
+                        <InputSelect id="class" @bind-Value="st.Result" class="form-control">
+                            <option value="">Выбрать...</option>
+                            <option>Победитель</option>
+                            <option>Призер</option>
+                            <option>Участник</option>
+                        </InputSelect>
+                    </div>
+                </div>
+                
+                 <a href="@($"editpt/{comp.Id}/{st.Id}")" class="btn btn-outline-secondary btn-sm">Участники</a>
+            }
+        </div>
+        @if(flag==true)
+        {
+            <div class="alert alert-success" role="alert">
+                Изменения сохранены!
+            </div>
+        }
+        <div class="modal-footer">
+            <button class="btn btn-outline-primary" @onclick="() => OpenAddDialog()">Добавить этап</button>
+            
+            @if (AddDialogOpen)
+            {
+                flag = false;
+                <AddSt OnClose="@OnAddDialogClose" IdComp="@comp.Id"></AddSt>
+            }
+ 
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+            
+        </div>
+    </EditForm>
+</div>
+@code {
+    [Parameter]
+    public string Id { get; set; }
+    public Competition comp { get; set; } = new Competition();
+    public bool flag = false;
+    protected async override Task OnInitializedAsync()
+    {
+
+        comp = await Http.GetFromJsonAsync<Competition>($"https://localhost:5001/api/Com/{Id}");
+
+    }
+    protected async Task HandleValidSubmit()
+    {
+        flag = false;
+        var res = await Http.PutAsJsonAsync($"https://localhost:5001/api/Com/{comp.Id}", comp);
+        if (res.IsSuccessStatusCode)
+        {
+            flag = true;
+        }
+
+    }
+    public bool AddDialogOpen { get; set; }
+    private void OnAddDialogClose(bool accepted)
+    {
+        AddDialogOpen = false;
+        StateHasChanged();
+    }
+    private void OpenAddDialog()
+    {
+        AddDialogOpen = true;
+        StateHasChanged();
+     }
+    
+}
+                   
+        

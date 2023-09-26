@@ -1,0 +1,40 @@
+﻿@if(Idpage == 1)
+{
+    @ChildContent1
+    <button type="button" class="btn btn-secondary" @onclick=@PageId2>Этапы</button>
+}
+@if(Idpage == 2)
+{
+    @ChildContent2
+    <button type="button" class="btn btn-secondary" @onclick=@PageId1>Конкурс</button>
+    @*<button type="button" class="btn btn-secondary" @onclick=@PageId3>Участники</button>*@
+}
+@if(Idpage == 3)
+{
+    @ChildContent3
+    <button type="button" class="btn btn-secondary" @onclick=@PageId2>Этапы</button>
+}
+
+
+@code {
+    [Parameter]
+    public RenderFragment ChildContent2 { get; set; }
+    [Parameter]
+    public RenderFragment ChildContent1 { get; set; }
+    [Parameter]
+    public RenderFragment ChildContent3 { get; set; }
+    [Parameter]
+    public int Idpage { get; set; } 
+    public void PageId2()
+        {
+            Idpage = 2;
+        }
+        //public void PageId3()
+        //{
+         //   Idpage = 3;
+        //}
+        public void PageId1()
+        {
+            Idpage = 1;
+        }
+}
